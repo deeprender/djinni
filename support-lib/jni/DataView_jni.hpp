@@ -16,8 +16,9 @@
 
 #pragma once
 
-#include "djinni_support.hpp"
 #include "../cpp/DataView.hpp"
+#include "djinni_support.hpp"
+#include <stdexcept>
 
 namespace djinni {
 
@@ -29,12 +30,16 @@ struct NativeDataView {
         auto size = jniEnv->GetDirectBufferCapacity(o);
         if (size == -1) {
             // GetDirectBufferCapacity() returns -1 when the ByteBuffer is not direct
-            throw std::invalid_argument("ByteBuffer is not allocated with allocateDirect()");
+            throw std::invalid_argument(
+                "ByteBuffer is not allocated with allocateDirect()");
         }
-        return DataView(reinterpret_cast<uint8_t*>(jniEnv->GetDirectBufferAddress(o)), static_cast<size_t>(size));
+        return DataView(
+            reinterpret_cast<uint8_t*>(jniEnv->GetDirectBufferAddress(o)),
+            static_cast<size_t>(size));
     }
 
-    static ::djinni::LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& c) {
+    static ::djinni::LocalRef<JniType> fromCpp(JNIEnv* jniEnv,
+                                               const CppType& c) {
         jobject bufObj = jniEnv->NewDirectByteBuffer(c.buf(), c.len());
         return ::djinni::LocalRef<JniType>(bufObj);
     }
